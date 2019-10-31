@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project
+    name="db_processor"
+    basedir=""
+    default="makeSuperJar" >
+
+    <target
+        name="makeSuperJar"
+        description="description" >
+
+        <jar destfile="cydb-library.jar" >
+        <zipfileset src="db-processor.jar" />
+        <zipfileset src="db-annotation.jar" />
+        <zipfileset src="javapoet-1.11.1.jar" />
+        <zipfileset src="db-library.jar" />
+        </jar>
+    </target>
+
+</project>

@@ -1,0 +1,2 @@
+include ':app', ':db-processor', ':db-annotation', ':db-library'
+rootProject.name='Processor'

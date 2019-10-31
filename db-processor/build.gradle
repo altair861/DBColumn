@@ -1,0 +1,26 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.google.auto.service:auto-service:1.0-rc2'
+    //implementation 'com.squareup:javapoet:1.10.0'
+    implementation project(path: ':db-annotation')
+
+}
+
+sourceCompatibility = "7"
+targetCompatibility = "7"
+// 发布maven配置
+apply plugin: 'maven'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            pom.groupId = 'com.arcsoft'
+            pom.artifactId = "db_processor"
+            pom.version = "1.1"
+            pom.packaging = 'aar'
+            repository(url: uri("${rootProject.projectDir}/repo"))
+        }
+    }
+}
