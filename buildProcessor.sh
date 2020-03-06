@@ -30,6 +30,7 @@ function copy() {
 }
 
 function build_jar() {
+    cur_sec=`date '+%s'`
     cd ${SDK_ROOT}
     echo "###start###"
 
@@ -58,7 +59,11 @@ function build_jar() {
     copy tmp/cydb-library.jar db-library/build/outputs/libs/
 
     rm -rf tmp
-    echo "###   DONE   ###"
+
+    temp_sec=$((`date '+%s'`-${cur_sec}))
+    echo ""
+    echo "BUILD SUCCESSFUL in ${temp_sec}s"
+    echo "output file:db-library/build/outputs/libs/cydb-library.jar"
 
 }
 

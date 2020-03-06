@@ -62,7 +62,8 @@ public class DBConditionClassCreatorProxy {
                 .addMethod(generateWhere())
                 .addMethod(generateAnd())
                 .addMethod(generateOr())
-                .addMethod(generateQuery());
+                .addMethod(generateQuery())
+                .addMethod(generateDelete());
 
         createColumnClass(builder);
 
@@ -133,6 +134,15 @@ public class DBConditionClassCreatorProxy {
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("return protocol.queryByCondition(selectionStr.toString(), values.toArray(new String[values.size()]))")
                 .returns(ParameterizedTypeName.get(ClassName.get(List.class), modelClassName))
+                .build();
+    }
+
+    private MethodSpec generateDelete() {
+        return MethodSpec.methodBuilder("delete")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("protocol.delete(selectionStr.toString(), values.toArray(new String[values.size()]))")
+                .returns(void.class)
                 .build();
     }
 

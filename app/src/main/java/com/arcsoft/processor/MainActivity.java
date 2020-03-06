@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < 10; i++) {
             User user = new User();
             user.setId(i);
-            user.setName("name:"+ i);
+            user.setName("name"+ i);
             user.setNum("num:" + i);
             //user.setTest2("test"+ PApplication.dbVersion);
             //DBHelper.getInstance().getDBProtocol(User.class).insertOrUpdate(user);
@@ -57,9 +57,17 @@ public class MainActivity extends AppCompatActivity {
 
         list =  DBHelper.getInstance().getDBProtocol(User.class).queryAll();
         Log.i("huangxiaoguo", "queryAll result:" + list.size());
+        for(User user : list){
+            Log.i("huangxiaoguo", "result name:" + user.getName());
+        }
 
         list =  DBHelper.getInstance().getDBProtocol(User.class)
                 .select().where(User_ConditionBuilder.name1.is("name1")).query();
         Log.i("huangxiaoguo", "queryAllKey result:" + list.size());
+        DBHelper.getInstance().getDBProtocol(User.class)
+                .select().where(User_ConditionBuilder.name1.is("name1")).delete();
+        list =  DBHelper.getInstance().getDBProtocol(User.class)
+                .select().where(User_ConditionBuilder.name1.is("name1")).query();
+        Log.i("huangxiaoguo", "queryAllKey result after delete:" + list.size());
     }
 }

@@ -15,4 +15,6 @@ public interface IDBConditionBuilder<T> {
     IDBConditionBuilder or(String[] selection);
 
     List<T> query();
+
+    void delete();
 }
