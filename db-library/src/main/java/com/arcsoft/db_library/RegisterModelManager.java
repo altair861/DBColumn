@@ -35,14 +35,14 @@ public class RegisterModelManager {
                 e.printStackTrace();
             }
             if (!routerMap.isEmpty()) {
-                context.getSharedPreferences(PackageUtils.AROUTER_SP_CACHE_KEY, Context.MODE_PRIVATE).edit().putStringSet(PackageUtils.AROUTER_SP_KEY_MAP, routerMap).apply();
+                context.getSharedPreferences(DBConstant.DBCOLUMN_SP_CACHE_KEY, Context.MODE_PRIVATE).edit().putStringSet(DBConstant.DBCOLUMN_SP_KEY_MAP, routerMap).apply();
                 PackageUtils.updateVersion(context);    // Save new version name when router map update finishes.
             }
 
 
         } else {
             Log.i(TAG, "Load router map from cache.");
-            routerMap = new HashSet<>(context.getSharedPreferences(PackageUtils.AROUTER_SP_CACHE_KEY, Context.MODE_PRIVATE).getStringSet(PackageUtils.AROUTER_SP_KEY_MAP, new HashSet<String>()));
+            routerMap = new HashSet<>(context.getSharedPreferences(DBConstant.DBCOLUMN_SP_CACHE_KEY, Context.MODE_PRIVATE).getStringSet(DBConstant.DBCOLUMN_SP_KEY_MAP, new HashSet<String>()));
         }
         return routerMap;
     }

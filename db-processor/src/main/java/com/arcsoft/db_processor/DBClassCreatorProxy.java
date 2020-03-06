@@ -1,6 +1,7 @@
 package com.arcsoft.db_processor;
 
 import com.arcsoft.db_annotation.DBConstant;
+import com.arcsoft.db_annotation.IDBConditionBuilder;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
@@ -57,6 +58,16 @@ public class DBClassCreatorProxy {
         mVariableElementMap.put(columnName, element);
     }
 
+    public String[] getColumnNames(){
+        String[] columnNames = new String[mVariableElementMap.size()];
+        int index = 0;
+        for (String columnName : mVariableElementMap.keySet()) {
+            columnNames[index] = columnName;
+            index ++;
+        }
+        return columnNames;
+    }
+
     public boolean hasPrimary() {
         return primary;
     }
@@ -87,6 +98,9 @@ public class DBClassCreatorProxy {
                 .initializer("$S", tableNameStr)
                 .build();
 
+
+
+
         TypeSpec bindingClass = TypeSpec.classBuilder(mBindingClassName)
                 .addModifiers(Modifier.PUBLIC)
                 .addField(columnsField)
@@ -103,6 +117,12 @@ public class DBClassCreatorProxy {
                 .addMethod(generateUpdateByValues())
                 .addMethod(generateUpdateByModel())
                 .addMethod(generateQueryAll())
+                .addMethod(generateSelect())
+//                .addMethod(generateQueryByKey())
+//                .addMethod(generateQueryByKeyAnd())
+//                .addMethod(generateQueryByKeyOr())
+                .addMethod(generateQueryByKeys())
+                .addMethod(generateQueryByCondition())
                 .addMethod(generateExist())
                 .addMethod(generateIsExistTable())
                 .addMethod(generateModel2Values())
@@ -256,9 +276,130 @@ public class DBClassCreatorProxy {
                 .addModifiers(Modifier.PUBLIC)
                 .returns(listOfHoverboards);
 
+        methodBuilder.addStatement("return queryByCondition(null, null)");
+
+        return methodBuilder.build();
+    }
+
+    /**
+     *  public IDBConditonBuilder select(){
+     *     return new Student_ConditionBuilder(this);
+     *   }
+     * @return
+     */
+    private MethodSpec generateSelect() {
+        ClassName list = ClassName.bestGuess(getModelName() + DBConstant.PROCESSOR_CLASS_CONDITION_SUFFIX);
+
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("select")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return new $T(this)", list)
+                .returns(IDBConditionBuilder.class);
+        return methodBuilder.build();
+    }
+
+    private MethodSpec generateQueryByKey() {
+        ClassName list = ClassName.get("java.util", "List");
+        TypeName listOfHoverboards = ParameterizedTypeName.get(list, mClassNameModel);
+
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("query")
+                .addParameter(String.class, "key")
+                .addParameter(String.class, "value")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(listOfHoverboards);
+
+        methodBuilder.addStatement("return queryByCondition(key + \"=?\", new String[]{value})");
+
+        return methodBuilder.build();
+    }
+
+    /**
+     * private List<Student> query(String[] keys, String[] values, String conditionAppendType) {
+     *     StringBuilder sb = new StringBuilder();
+     *     for(int i = 0, length = keys.length; i < length; i ++){
+     *       sb.append(keys[i] + " =? ");
+     *       if(i != length - 1){
+     *         sb.append(coditionAppendType);
+     *       }
+     *     }
+     *     return queryByCondition(sb.toString(), values);
+     *   }
+     * @return
+     */
+    private MethodSpec generateQueryByKeys() {
+        ClassName list = ClassName.get("java.util", "List");
+        TypeName listOfHoverboards = ParameterizedTypeName.get(list, mClassNameModel);
+
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("query")
+                .addParameter(String[].class, "keys")
+                .addParameter(String[].class, "values")
+                .addParameter(String.class, "conditionAppendType")
+                .addModifiers(Modifier.PRIVATE)
+                .returns(listOfHoverboards);
+
+        // methodBuilder.addStatement("$T<$T> results  = new $T<>()", List.class, mClassNameModel, ArrayList.class);
+        methodBuilder.addStatement("$T sb = new StringBuilder()", StringBuilder.class);
+        methodBuilder.beginControlFlow("for(int i = 0, length = keys.length; i < length; i ++)");
+        methodBuilder.addStatement("sb.append(keys[i] + \" =? \")");
+        methodBuilder.beginControlFlow("if(i != length - 1)");
+        methodBuilder.addStatement("sb.append(conditionAppendType)");
+        methodBuilder.endControlFlow();
+        methodBuilder.endControlFlow();
+
+        methodBuilder.addStatement("return queryByCondition(sb.toString(), values)");
+
+        return methodBuilder.build();
+    }
+
+
+    private MethodSpec generateQueryByKeyAnd() {
+        ClassName list = ClassName.get("java.util", "List");
+        TypeName listOfHoverboards = ParameterizedTypeName.get(list, mClassNameModel);
+
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("queryAnd")
+                .addParameter(String[].class, "keys")
+                .addParameter(String[].class, "values")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(listOfHoverboards);
+
+        methodBuilder.addStatement("return query(keys, values, \"AND\")");
+
+        return methodBuilder.build();
+    }
+
+    private MethodSpec generateQueryByKeyOr() {
+        ClassName list = ClassName.get("java.util", "List");
+        TypeName listOfHoverboards = ParameterizedTypeName.get(list, mClassNameModel);
+
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("queryOr")
+                .addParameter(String[].class, "keys")
+                .addParameter(String[].class, "values")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(listOfHoverboards);
+
+        methodBuilder.addStatement("return query(keys, values, \"OR\")");
+
+        return methodBuilder.build();
+    }
+
+
+    private MethodSpec generateQueryByCondition() {
+        ClassName list = ClassName.get("java.util", "List");
+        TypeName listOfHoverboards = ParameterizedTypeName.get(list, mClassNameModel);
+
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("queryByCondition")
+                .addParameter(String.class, "selection")
+                .addParameter(String[].class, "selectionArgs")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(listOfHoverboards);
+
 
         methodBuilder.addStatement("$T<$T> results  = new $T<>()", List.class, mClassNameModel, ArrayList.class);
-        methodBuilder.addStatement("$T cursor = db.query(tableName, columns, null, null, null, null, null)", mClassNameCursor);
+        methodBuilder.addStatement("$T cursor = db.query(tableName, columns, selection, selectionArgs, null, null, null)", mClassNameCursor);
         methodBuilder.beginControlFlow("if(null != cursor)");
         methodBuilder.beginControlFlow("for (cursor.moveToFirst(); !cursor.isAfterLast();cursor.moveToNext())");
         methodBuilder.addStatement("$T item = new $T()", mClassNameModel, mClassNameModel);
@@ -394,6 +535,7 @@ public class DBClassCreatorProxy {
 
     private MethodSpec generateUpdateByModel() {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("update")
+                .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(mClassNameModel, "model")
                 .returns(long.class);
@@ -457,6 +599,15 @@ public class DBClassCreatorProxy {
 
     public String getPackageName() {
         return mPackageName;
+    }
+
+    public String getModelName(){
+        return tableNameStr;
+    }
+
+
+    public ClassName getModelClassName(){
+        return mClassNameModel;
     }
 
     public String upperFirstLatter(String letter){

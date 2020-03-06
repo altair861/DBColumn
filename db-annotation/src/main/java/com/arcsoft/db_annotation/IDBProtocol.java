@@ -18,7 +18,13 @@ public interface IDBProtocol<S,T> {
      * @param models
      */
     void insertOrUpdates(List<T> models);
+    long update(T model);
     List<T> queryAll();
+
+//    List<T> queryAnd(String[] keys, String[] values);
+//    List<T> queryOr(String[] keys, String[] values);
+//    List<T> query(String key, String value);
+    List<T> queryByCondition(String selection, String[] selectionArgs);
     int delete(String whereClauses, String[] whereArgs);
 
     /**
@@ -32,5 +38,7 @@ public interface IDBProtocol<S,T> {
      * 默认数据库升级操作，仅支持表新增列，新增表
      */
     void updateTableColumn();
+
+    IDBConditionBuilder select();
 
 }

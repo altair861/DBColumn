@@ -4,6 +4,7 @@ import com.arcsoft.db_annotation.DBColumn;
 import com.arcsoft.db_annotation.DBConstant;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -108,25 +109,25 @@ public class DBProcessor extends AbstractProcessor {
         //通过javapoet生成
         for (String key : mProxyMap.keySet()) {
             DBClassCreatorProxy proxyInfo = mProxyMap.get(key);
-            JavaFile javaFile = JavaFile.builder(proxyInfo.getPackageName(), proxyInfo.generateJavaCode2()).build();
-            try {
-                //　生成文件
-                javaFile.writeTo(processingEnv.getFiler());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            buildJaveFile(proxyInfo.getPackageName(), proxyInfo.generateJavaCode2());
+
+            DBConditionClassCreatorProxy conditionProxyInf = new DBConditionClassCreatorProxy(proxyInfo.getModelName(), proxyInfo.getModelClassName(), proxyInfo.getColumnNames());
+            buildJaveFile(proxyInfo.getPackageName(), conditionProxyInf.generateJavaCode());
         }
 
-
         DBModelClassRegisterProxy proxyInfo = new DBModelClassRegisterProxy(mProxyMap.keySet(), mModuleName);
-        JavaFile javaFile = JavaFile.builder(proxyInfo.getPackageName(), proxyInfo.generateJavaCode2()).build();
+        buildJaveFile(proxyInfo.getPackageName(), proxyInfo.generateJavaCode2());
+        mMessager.printMessage(Diagnostic.Kind.NOTE, "process finish ...");
+        return true;
+    }
+
+    private void buildJaveFile(String pkgName, TypeSpec typeSpec){
+        JavaFile javaFile = JavaFile.builder(pkgName, typeSpec).build();
         try {
             //　生成文件
             javaFile.writeTo(processingEnv.getFiler());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        mMessager.printMessage(Diagnostic.Kind.NOTE, "process finish ...");
-        return true;
     }
 }

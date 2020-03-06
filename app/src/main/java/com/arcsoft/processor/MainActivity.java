@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import com.arcsoft.cydb_library.com.arcsoft.processor.User_ConditionBuilder;
 import com.arcsoft.db_library.DBHelper;
 
 import java.util.ArrayList;
@@ -56,5 +57,9 @@ public class MainActivity extends AppCompatActivity {
 
         list =  DBHelper.getInstance().getDBProtocol(User.class).queryAll();
         Log.i("huangxiaoguo", "queryAll result:" + list.size());
+
+        list =  DBHelper.getInstance().getDBProtocol(User.class)
+                .select().where(User_ConditionBuilder.name1.is("name1")).query();
+        Log.i("huangxiaoguo", "queryAllKey result:" + list.size());
     }
 }

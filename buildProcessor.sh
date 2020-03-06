@@ -31,6 +31,9 @@ function copy() {
 
 function build_jar() {
     cd ${SDK_ROOT}
+    echo "###start###"
+
+    cd ${SDK_ROOT}
     echo ${SDK_ROOT}
     mkdir -p "tmp/"
 
@@ -46,6 +49,8 @@ function build_jar() {
 
     copy build.xml tmp/
     cd tmp
+    echo "###start merge jar###"
+
     ant -buildfile build.xml
 
     cd -
@@ -53,6 +58,8 @@ function build_jar() {
     copy tmp/cydb-library.jar db-library/build/outputs/libs/
 
     rm -rf tmp
+    echo "###   DONE   ###"
+
 }
 
 build_jar

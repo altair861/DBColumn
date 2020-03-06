@@ -11,7 +11,7 @@ import com.arcsoft.db_annotation.DBColumn;
 public class User extends BaseModel{
     @DBColumn(primary = true)
     private int id;
-    @DBColumn
+    @DBColumn(name = "name1")
     String name;
     @DBColumn
     private String num;
