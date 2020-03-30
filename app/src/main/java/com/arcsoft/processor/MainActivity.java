@@ -42,8 +42,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void test(){
         Log.i("huangxiaoguo", "insert");
-        List<User> list = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        final List<User> list = new ArrayList<>();
+        for (int i = 0; i < 1000; i++) {
             User user = new User();
             user.setId(i);
             user.setName("name"+ i);
@@ -52,22 +52,37 @@ public class MainActivity extends AppCompatActivity {
             //DBHelper.getInstance().getDBProtocol(User.class).insertOrUpdate(user);
             list.add(user);
         }
-        DBHelper.getInstance().getDBProtocol(User.class).insertOrUpdates(list);
-        Log.i("huangxiaoguo", "insert end");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<User> list2 =  DBHelper.getInstance().getDBProtocol(User.class).queryAll();
+                Log.i("huangxiaoguo", "queryAll result:" + list2.size());
+                for(User user : list2){
+                    Log.i("huangxiaoguo", "result name:" + user.getName());
+                }
+            }
+        }).start();
 
-        list =  DBHelper.getInstance().getDBProtocol(User.class).queryAll();
-        Log.i("huangxiaoguo", "queryAll result:" + list.size());
-        for(User user : list){
-            Log.i("huangxiaoguo", "result name:" + user.getName());
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                DBHelper.getInstance().getDBProtocol(User.class).insertOrUpdates(list);
+                Log.i("huangxiaoguo", "insert end");
+            }
+        }).start();
 
-        list =  DBHelper.getInstance().getDBProtocol(User.class)
-                .select().where(User_ConditionBuilder.name1.is("name1")).query();
-        Log.i("huangxiaoguo", "queryAllKey result:" + list.size());
-        DBHelper.getInstance().getDBProtocol(User.class)
-                .select().where(User_ConditionBuilder.name1.is("name1")).delete();
-        list =  DBHelper.getInstance().getDBProtocol(User.class)
-                .select().where(User_ConditionBuilder.name1.is("name1")).query();
-        Log.i("huangxiaoguo", "queryAllKey result after delete:" + list.size());
+
+
+
+
+
+//        list =  DBHelper.getInstance().getDBProtocol(User.class)
+//                .select().where(User_ConditionBuilder.name1.is("name1")).query();
+//        Log.i("huangxiaoguo", "queryAllKey result:" + list.size());
+//        DBHelper.getInstance().getDBProtocol(User.class)
+//                .select().where(User_ConditionBuilder.name1.is("name1")).delete();
+//        list =  DBHelper.getInstance().getDBProtocol(User.class)
+//                .select().where(User_ConditionBuilder.name1.is("name1")).query();
+//        Log.i("huangxiaoguo", "queryAllKey result after delete:" + list.size());
     }
 }

@@ -142,6 +142,7 @@ public class DBClassCreatorProxy {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("init")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .addParameter(mClassNameSQLiteDatabase, "db")
                 .returns(void.class);
 
@@ -167,6 +168,7 @@ public class DBClassCreatorProxy {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("create")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .returns(void.class);
 
         methodBuilder.addStatement("db.execSQL($S)", createSqlStr);
@@ -177,6 +179,7 @@ public class DBClassCreatorProxy {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("insert")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .returns(long.class)
                 .addParameter(mClassNameModel, "model")
                 .addStatement("$T values = model2Values(model)", mClassNameContentValues);
@@ -187,6 +190,7 @@ public class DBClassCreatorProxy {
     private MethodSpec generateInsertByValues(){
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("insert")
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .returns(long.class)
                 .addParameter(mClassNameContentValues, "values");
         methodBuilder.addStatement("return db.insertOrThrow(tableName, null, values)");
@@ -196,6 +200,7 @@ public class DBClassCreatorProxy {
     private MethodSpec generateModel2Values(){
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("model2Values")
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .returns(mClassNameContentValues)
                 .addParameter(mClassNameModel, "model")
                 .addStatement("$T values = new $T()", mClassNameContentValues, mClassNameContentValues);
@@ -219,6 +224,7 @@ public class DBClassCreatorProxy {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("insertOrUpdate")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .addParameter(mClassNameModel, "model")
                 .addStatement("$T values = model2Values(model)", mClassNameContentValues)
                 .returns(long.class);
@@ -240,6 +246,7 @@ public class DBClassCreatorProxy {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("insertOrUpdates")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .addParameter(listOfHoverboards, "models")
                 .returns(void.class);
 
@@ -274,6 +281,7 @@ public class DBClassCreatorProxy {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("queryAll")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .returns(listOfHoverboards);
 
         methodBuilder.addStatement("return queryByCondition(null, null)");
@@ -293,6 +301,7 @@ public class DBClassCreatorProxy {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("select")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .addStatement("return new $T(this)", list)
                 .returns(IDBConditionBuilder.class);
         return methodBuilder.build();
@@ -307,6 +316,7 @@ public class DBClassCreatorProxy {
                 .addParameter(String.class, "value")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .returns(listOfHoverboards);
 
         methodBuilder.addStatement("return queryByCondition(key + \"=?\", new String[]{value})");
@@ -336,6 +346,7 @@ public class DBClassCreatorProxy {
                 .addParameter(String[].class, "values")
                 .addParameter(String.class, "conditionAppendType")
                 .addModifiers(Modifier.PRIVATE)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .returns(listOfHoverboards);
 
         // methodBuilder.addStatement("$T<$T> results  = new $T<>()", List.class, mClassNameModel, ArrayList.class);
@@ -362,6 +373,7 @@ public class DBClassCreatorProxy {
                 .addParameter(String[].class, "values")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .returns(listOfHoverboards);
 
         methodBuilder.addStatement("return query(keys, values, \"AND\")");
@@ -378,6 +390,7 @@ public class DBClassCreatorProxy {
                 .addParameter(String[].class, "values")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .returns(listOfHoverboards);
 
         methodBuilder.addStatement("return query(keys, values, \"OR\")");
@@ -395,6 +408,7 @@ public class DBClassCreatorProxy {
                 .addParameter(String[].class, "selectionArgs")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .returns(listOfHoverboards);
 
 
@@ -438,6 +452,7 @@ public class DBClassCreatorProxy {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("delete")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .addParameter(String.class, "whereClauses")
                 .addParameter(String[].class, "whereArgs")
                 .returns(int.class);
@@ -452,6 +467,7 @@ public class DBClassCreatorProxy {
     private MethodSpec generateDeleteByPrimary() {MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("deleteByPrimary")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+            .addModifiers(Modifier.SYNCHRONIZED)
                 .addParameter(String.class, "whereArgs")
                 .returns(int.class);
 
@@ -464,6 +480,7 @@ public class DBClassCreatorProxy {
     private MethodSpec generateExist() {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("isExist")
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .addParameter(Object.class, "whereArgs")
                 .returns(boolean.class);
 
@@ -498,6 +515,7 @@ public class DBClassCreatorProxy {
     private MethodSpec generateIsExistTable() {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("isExistTable")
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .returns(boolean.class);
 
         methodBuilder.addStatement("$T cursor = null", mClassNameCursor);
@@ -525,6 +543,7 @@ public class DBClassCreatorProxy {
     private MethodSpec generateUpdateByValues() {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("update")
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .addParameter(mClassNameContentValues, "values")
                 .returns(long.class);
 
@@ -537,6 +556,7 @@ public class DBClassCreatorProxy {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("update")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .addParameter(mClassNameModel, "model")
                 .returns(long.class);
 
@@ -562,6 +582,7 @@ public class DBClassCreatorProxy {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("updateTableColumn")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.SYNCHRONIZED)
                 .returns(void.class);
 
         methodBuilder.beginControlFlow("if(isExistTable())");

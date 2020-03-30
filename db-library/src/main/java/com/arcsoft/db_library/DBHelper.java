@@ -1,6 +1,7 @@
 package com.arcsoft.db_library;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.arcsoft.db_annotation.DBConstant;
 import com.arcsoft.db_annotation.IDBProtocol;
@@ -55,11 +56,18 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    public <T> IDBProtocol getDBProtocol(Class<T> model){
+    public synchronized  <T> IDBProtocol getDBProtocol(Class<T> model){
         try {
-            Class cursorClass = Class.forName(DBConstant.MODEL_REGISTER_PKG + "." + model.getName() + DBConstant.PROCESSOR_CLASS_SUFFIX);
-            IDBProtocol protocol = (IDBProtocol) cursorClass.newInstance();
-            protocol.init(getWritableDatabase());
+            String fullPath = DBConstant.MODEL_REGISTER_PKG + "." + model.getName() + DBConstant.PROCESSOR_CLASS_SUFFIX;
+            IDBProtocol protocol = Warehouse.providers.get(fullPath);
+            if(null == protocol){
+                Class cursorClass = Class.forName(fullPath);
+                protocol = (IDBProtocol) cursorClass.newInstance();
+                protocol.init(getWritableDatabase());
+                Warehouse.providers.put(fullPath, protocol);
+                Log.i(TAG, "create protocol:" + protocol.hashCode());
+            }
+            Log.i(TAG, "getDBProtocol:" + protocol.hashCode());
             return protocol;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
